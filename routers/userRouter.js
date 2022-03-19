@@ -40,16 +40,22 @@ router.post("/", async (req, res) => {
     const savedUser = await newUser.save();
 
     // create a JWT token
-    const token = jwt.sign({
-        id: savedUser._id,
-    }, process.env.JWT_SECRET);
-
-    res.cookie("token", token, {httpOnly: true}).send();
-
-
-    } catch (err) {
-        res.status(500).send();
-    }
+    res
+    .cookie("token", token, {
+      httpOnly: true,
+      sameSite:
+        process.env.NODE_ENV === "development"
+          ? "lax"
+          : process.env.NODE_ENV === "production" && "none",
+      secure:
+        process.env.NODE_ENV === "development"
+          ? false
+          : process.env.NODE_ENV === "production" && true,
+    })
+    .send();
+} catch (err) {
+  res.status(500).send();
+}
 });
 
 router.post("/login", async (req, res) => {
@@ -75,16 +81,23 @@ router.post("/login", async (req, res) => {
     }
 
     // create a JWT token
-    const token = jwt.sign({
-        id: userExists._id,
-    }, process.env.JWT_SECRET);
-    res.cookie("token", token, {httpOnly: true}).send();
-
-    } catch (err) {
-        res.status(500).send();
-    }
-
-})
+    res
+    .cookie("token", token, {
+      httpOnly: true,
+      sameSite:
+        process.env.NODE_ENV === "development"
+          ? "lax"
+          : process.env.NODE_ENV === "production" && "none",
+      secure:
+        process.env.NODE_ENV === "development"
+          ? false
+          : process.env.NODE_ENV === "production" && true,
+    })
+    .send();
+} catch (err) {
+  res.status(500).send();
+}
+});
 
 router.get("/loggedin", (req, res) => {
     try {
