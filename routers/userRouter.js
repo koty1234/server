@@ -40,23 +40,31 @@ router.post("/", async (req, res) => {
     const savedUser = await newUser.save();
 
     // create a JWT token
-    res
-    .cookie("token", token, {
-      httpOnly: true,
-      sameSite:
-        process.env.NODE_ENV === "development"
-          ? "lax"
-          : process.env.NODE_ENV === "production" && "none",
-      secure:
-        process.env.NODE_ENV === "development"
-          ? false
-          : process.env.NODE_ENV === "production" && true,
-    })
-    .send();
-} catch (err) {
-  res.status(500).send();
-}
-});
+
+    const token = jwt.sign(
+        {
+          id: savedUser._id,
+        },
+        process.env.JWT_SECRET
+      );
+  
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          sameSite:
+            process.env.NODE_ENV === "development"
+              ? "lax"
+              : process.env.NODE_ENV === "production" && "none",
+          secure:
+            process.env.NODE_ENV === "development"
+              ? false
+              : process.env.NODE_ENV === "production" && true,
+        })
+        .send();
+    } catch (err) {
+      res.status(500).send();
+    }
+  });
 
 router.post("/login", async (req, res) => {
     try {
@@ -80,8 +88,16 @@ router.post("/login", async (req, res) => {
         return res.status(401).json({errorMessage: "Wrong email or password!"});
     }
 
-    // create a JWT token
-    res
+// create a JWT token
+
+const token = jwt.sign(
+    {
+      id: existingUser._id,
+    },
+    process.env.JWT_SECRET
+  );
+
+  res
     .cookie("token", token, {
       httpOnly: true,
       sameSite:
