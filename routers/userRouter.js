@@ -5,35 +5,31 @@ const jwt = require("jsonwebtoken");
 
 router.post("/", async (req, res) => {
     try {
-        const {email, password, passwordVerify} = req.body;
+        const {firstName, lastName, position, phone, email, password, passwordVerify} = req.body;
 
     //validation
     if(!email || !password || !passwordVerify) {
             return res.status(400).json({errorMessage: "You need to fill eveyrthing out."});
     }
-
-    if (password.length < 6) {
+    if (password.length < 8) {
         return res.status(400).json({errorMessage: "Please enter a longer password."});
     }
-
     if (password != passwordVerify) {
         return res.status(400).json({errorMessage: "Your passwords do not match!"});
-    }
-
-    //no account existingSnippet
-    const userExists = await User.findOne({email});
-    if(userExists) {
-        return res.status(400).json({errorMessage: "This account already exists."});
     }
 
     // password hashing
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
 
-    //save user in database
+    //create new User in database
 
     const newUser = new User({
+        firstName,
+        lastName,
+        position,
         email,
+        phone,
         passwordHash
     });
 
