@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const companySchema = new mongoose.Schema({
+    creatorId: {type: ObjectId},
     companyName: {type: String, required: true},
     address: {type: String, required: true},
     city: {type: String, required: true},

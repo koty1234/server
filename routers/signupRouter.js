@@ -2,6 +2,7 @@ const router = require("express").Router();
 const User = require("../models/userModel");
 const Company = require("../models/companyModel");
 const Vendor = require("../models/vendorModel");
+const auth = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -73,7 +74,8 @@ router.post("/", async (req, res) => {
   });
 
 //creates a new company
-  router.post("/company", async (req, res) => {
+  router.post("/company", auth, async (req, res) => {
+    const userId = req.user;
     try {
         const {
             companyName,
@@ -108,6 +110,7 @@ router.post("/", async (req, res) => {
     //create new Company in database
 
     const newCompany = new Company({
+      creatorId: userId,
       companyName,
       address,
       city,
@@ -135,7 +138,8 @@ catch (err) {
   });
 
   //creates a new vendor
-  router.post("/vendor", async (req, res) => {
+  router.post("/vendor", auth, async (req, res) => {
+    const userId = req.user;
     try {
         const {
             companyName,
@@ -163,6 +167,7 @@ catch (err) {
     //create new Company in database
 
     const newVendor = new Vendor({
+      creatorId: userId,
       companyName,
       address,
       city,

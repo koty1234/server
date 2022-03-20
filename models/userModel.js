@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const userSchema = new mongoose.Schema({
     firstName: {type: String, required: true},
@@ -8,7 +7,6 @@ const userSchema = new mongoose.Schema({
     phone: {type: String},
     email: {type: String, required: true},
     passwordHash: {type: String, required: true},
-    company: {type: ObjectId},
 },
 {
     timestamps: true,
