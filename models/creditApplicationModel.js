@@ -1,21 +1,18 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const vendorSchema = new mongoose.Schema({
-    creatorId: {type: ObjectId},
-    companyName: {type: String, required: true},
-    address: {type: String, required: true},
-    city: {type: String, required: true},
-    postalCode: {type: String, required: true},
-    presidentName: {type: String, required: true},
-    yib: {type: Number, required: true},
-    businessPhone: {type: String, required: true},
-    businessEmail: {type: String, required: true},
+const creditApplicationSchema = new mongoose.Schema({
+    creatorId: {type: ObjectId, required: true},
+    companyId: {type: ObjectId, required: true},
+    vendorId: {type: ObjectId, required: true},
+    annualVolume: {type: Number, required: true},
+    requestedAmount: {type: Number, required: true},
+    additionalRequirements: {type: ObjectId, required: true},
 },
 {
     timestamps: true,
 });
 
-const Vendor = mongoose.model("vendor", vendorSchema);
+const CreditApplication = mongoose.model("creditApplication", creditApplicationSchema);
 
-module.exports = Vendor;
+module.exports = CreditApplication;
