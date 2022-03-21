@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 //creates a new user
 router.post("/", async (req, res) => {
     try {
-        const {firstName, lastName, position, phone, email, password, passwordVerify} = req.body;
+        const {firstName, lastName, position, phone, email, userSide, password, passwordVerify} = req.body;
 
     //validation
     if(!email || !password || !passwordVerify) {
@@ -39,6 +39,7 @@ router.post("/", async (req, res) => {
         position,
         email,
         phone,
+        userSide,
         passwordHash
     });
 
@@ -71,35 +72,36 @@ router.post("/", async (req, res) => {
     }
   });
 
-//used to update a user (primarily to add Company ID)
-router.put("/", auth, async (req, res) => {
+//used to update a user (primarily to add business)
+router.patch("/", auth, async (req, res) => {
     try {
-        const {companyId} = req.body;
+        const {passedId} = req.body;
         const userId = req.user;
         
-        //check if snippetID is given
-        if (!companyId) {
+        //check if ID is passed
+        if (!passedId) {
             return res.status(400).json({errorMessage: "No user"});
         }
 
+        // find existing user and determin UserSide
         const existingUser = await User.findById(userId);
         if (!existingUser){
             return res.status(400).json({errorMessage: "No user with this ID is found"});
         }
-
-        existingUser.companyId = companyId;
-
-        console.log(companyId);
-        console.log(userId);
+        // determind where to put userId
+        if(existingUser.userSide == "vendor") existingUser.vendorId = passedId;
+        else if(existingUser.userSide == "company") existingUser.companyId = passedId;
+        else {
+          //do stuff if userSide isn't set.
+        }
 
         const saveUser = await existingUser.save();
-
         res.json(saveUser);
     }
-    catch {
+    catch(err) {
         res.status(500).send();
+        console.log(err);
     }
 })
-
 
 module.exports = router;

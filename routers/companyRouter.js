@@ -71,7 +71,7 @@ catch (err) {
     }
   });
 
-// get a company based of userId
+// get a company based off ID
 router.get("/:id", auth, async (req, res) => {
   // try to find by userId attached to company
   const companyId = req.params.id;
@@ -85,7 +85,7 @@ router.get("/:id", auth, async (req, res) => {
   }
 })
 
-// update a company based of UserId
+// update a company based off ID
 router.put("/:id", auth, async (req, res) => {
   try {
     const {

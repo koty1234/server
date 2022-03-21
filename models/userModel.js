@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
     phone: {type: String},
     email: {type: String, required: true},
     passwordHash: {type: String, required: true},
+    userSide: {type: String, required: true}, //company or vendor?
     companyId: {type: ObjectId},
+    vendorId: {type: ObjectId},
 },
 {
     timestamps: true,
