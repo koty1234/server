@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000","https://credcheck-server.herokuapp.com"] ,
+    origin: ["http://localhost:3000","https://cred-check-client.herokuapp.com"] ,
     credentials: true,
 })
 );
