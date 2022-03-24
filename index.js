@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000","https://snippetmanagerak.netlify.app"] ,
+    origin: ["http://localhost:3000","https://credcheck-server.herokuapp.com"] ,
     credentials: true,
 })
 );
