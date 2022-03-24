@@ -138,7 +138,7 @@ router.put("/:id", auth, async (req, res) => {
       existingCompany.instagram = instagram;
       existingCompany.twitter = twitter;
       existingCompany.linkedin = linkedin;
-
+      
       const saveCompany = await existingCompany.save();
 
       res.json(saveCompany);

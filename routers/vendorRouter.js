@@ -1,9 +1,8 @@
 const router = require("express").Router();
 const CreditAppCustom = require("../models/creditAppCustom");
 const Vendor = require("../models/vendorModel");
+const User = require("../models/userModel");
 const auth = require("../middleware/auth");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 //creates a new vendor
 router.post("/", auth, async (req, res) => {
@@ -13,6 +12,7 @@ router.post("/", auth, async (req, res) => {
             companyName,
             address,
             city,
+            state,
             postalCode,
             presidentName,
             yib,
@@ -23,7 +23,7 @@ router.post("/", auth, async (req, res) => {
 
     //check if fields are empty
     if(!companyName || !address || !city || !yib) {
-            return res.status(400).json({errorMessage: "You need to fill eveyrthing out."});
+            return res.status(400).json({errorMessage: "You need to fill eveyrthing out."}).send();
     }
     //check if vendor already exists
     const existingPhone = await Vendor.findOne({ businessPhone });
@@ -41,6 +41,7 @@ router.post("/", auth, async (req, res) => {
       companyName,
       address,
       city,
+      state,
       postalCode,
       presidentName,
       yib,
@@ -49,37 +50,37 @@ router.post("/", auth, async (req, res) => {
       website,
     });
 
-await newVendor.save();
-res.status(200).send();
+const vendor = await newVendor.save();
+res.status(200).json(vendor).send();
   }
 
 catch (err) {
-      res.status(500).send();
+      res.status(500).json(err).send();
       console.log(err);
     }
 });
 
 // get a vendor based off ID
 router.get("/:id", auth, async (req, res) => {
-  // try to find by userId attached to vendor
-  const vendorId = req.params.id;
+
   try{
-   let vendor = await Vendor.findById(vendorId);
+   let vendor = await Vendor.findById(req.params.id);
    res.json(vendor);
-   res.status(200).send();
   }
-  catch {
+  catch(err) {
       res.status(500).send();
+      console.log(err);
   }
 })
 
 // update a vendor based off ID
-router.put("/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
   try {
     const {
       companyName,
       address,
       city,
+      state,
       postalCode,
       presidentName,
       yib,
@@ -108,6 +109,7 @@ router.put("/:id", auth, async (req, res) => {
       existingVendor.companyName = companyName;
       existingVendor.address = address;
       existingVendor.city = city;
+      existingVendor.state = state;
       existingVendor.postalCode = postalCode;
       existingVendor.presidentName = presidentName;
       existingVendor.yib = yib;
@@ -119,13 +121,14 @@ router.put("/:id", auth, async (req, res) => {
 
       res.json(saveVendor);
   }
-  catch {
-      res.status(500).send();
+  catch (err) {
+    res.status(500).json(err).send();
+    console.log(err);
   }
 })
 
 // add custom cred app ID to vendor
-router.patch("/updateCustomCreditApp/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
 try {
         const vendorId = req.params.id;
         const {passedId} = req.body;
@@ -139,10 +142,11 @@ try {
         return res.status(400).json({errorMessage: "No vendor with this ID is found"});
       }
 
-      //check if already has customCreditApp
+      //check if already has customCreditApp if they don't - will add
       if (!existingVendor.customCredAppId[0]){
         existingVendor.customCredAppId = [{currentCustomApp: passedId}];
       }
+      //if they do - will move existing to old and add current to current
       else {
         oldCustomCreditApp = existingVendor.customCredAppId[0].currentCustomApp;
         existingVendor.customCredAppId = [{currentCustomApp: passedId}, 
@@ -160,9 +164,10 @@ try {
 })
 
 // create custom credit app
-router.post("/creditapp/custom/:id", auth, async (req, res) => {
+router.post("/customcreditapp/", auth, async (req, res) => {
   try {
     const {
+      vendorId,
       qOne,
       qTwo,
       qThree,
@@ -174,7 +179,6 @@ router.post("/creditapp/custom/:id", auth, async (req, res) => {
       qNine,
       qTen,
     } = req.body;
-    const vendorId = req.params.id;
     const creatorId = req.user;
 
     if(!qOne){
@@ -209,8 +213,22 @@ router.post("/creditapp/custom/:id", auth, async (req, res) => {
   }
 })
 
-// update custom credit app TODO
-router.put("/creditapp/custom/:id", auth, async (req, res) => {
+// get a customCred from Id
+router.get("/customcreditapp/:id", auth, async (req, res) => {
+  // try to find by userId attached to vendor
+  const customCredAppId = req.params.id;
+  try{
+   let vendor = await CreditAppCustom.findById(customCredAppId);
+   res.json(vendor);
+   res.status(200).send();
+  }
+  catch {
+      res.status(500).send();
+  }
+})
+
+// update custom credit app from Id
+router.patch("/customcreditapp/:id", auth, async (req, res) => {
   try {
     const {
       qOne,
@@ -224,35 +242,29 @@ router.put("/creditapp/custom/:id", auth, async (req, res) => {
       qNine,
       qTen,
     } = req.body;
-    const vendorId = req.params.id;
-    const creatorId = req.user;
 
-    const existingCustomCredApp = CreditAppCustom.findById()
-    if(!qOne){
-      return res.status(400).json({errorMessage: "You need to enter atleast one custom question."});
+    const existingCustomCredApp = await CreditAppCustom.findById(req.params.id)
+    if(!existingCustomCredApp){
+      return res.status(400).json({errorMessage: "No custom credit app found"});
     }
-
     if(!req.user) {
       return res.status(400).json({errorMessage: "Nobody signed in"});
-  }
+    }
 
-  const newCustomCreditApp = new CreditAppCustom({
-    creatorId, 
-    vendorId, 
-    qOne,
-    qTwo,
-    qThree,
-    qFour,
-    qFive,
-    qSix,
-    qSeven,
-    qEight,
-    qNine,
-    qTen,
-  });
+    existingCustomCredApp.qOne = qOne;
+    existingCustomCredApp.qTwo = qTwo;
+    existingCustomCredApp.qThree = qThree;
+    existingCustomCredApp.qFour = qFour;
+    existingCustomCredApp.qFive = qFive;
+    existingCustomCredApp.qSix = qSix;
+    existingCustomCredApp.qSeven = qSeven;
+    existingCustomCredApp.qEight = qEight;
+    existingCustomCredApp.qNine = qNine;
+    existingCustomCredApp.qTen = qTen;
+  
 
-  const savedCustomCreditApp = await newCustomCreditApp.save();
-  res.json(savedCustomCreditApp);
+  const savedCustomCredApp = await existingCustomCredApp.save();
+  res.json(savedCustomCredApp);
   }
   catch (err) {
     res.status(500).send();

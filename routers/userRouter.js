@@ -69,11 +69,40 @@ router.post("/", async (req, res) => {
         .send();
     } catch (err) {
       res.status(500).send();
+      console.log(err);
     }
   });
 
-//used to update a user (primarily to add business)
-router.patch("/", auth, async (req, res) => {
+// checks is browser is loggedin
+router.get("/isloggedin", (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) return res.json(null);
+
+    const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
+
+    res.json(validatedUser.id);
+  } catch (err) {
+    return res.json(null);
+  }
+});
+
+// get user details
+router.get("/", auth, async (req, res) => {
+  try {
+    if (!req.user) return res.json("No user");
+
+    const existingUser = await User.findById(req.user);
+
+    res.json(existingUser);
+  } catch (err) {
+    return res.json(null);
+  }
+});
+
+//used to update a user (primarily to add businessID) NEEDS WORK
+router.patch("/attachid", auth, async (req, res) => {
     try {
         const {passedId} = req.body;
         const userId = req.user;
@@ -98,10 +127,40 @@ router.patch("/", auth, async (req, res) => {
         const saveUser = await existingUser.save();
         res.json(saveUser);
     }
-    catch(err) {
-        res.status(500).send();
-        console.log(err);
+    catch (err) {
+      res.status(500).send();
+      console.log(err);
     }
+})
+
+//update a user with
+router.patch("/", auth, async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      position,
+    } = req.body;
+
+      const existingUser = await User.findById(req.user);
+    console.log(existingUser);
+      existingUser.firstName = firstName,
+      existingUser.lastName = lastName,
+      existingUser.email = email,
+      existingUser.phone = phone,
+      existingUser.position = position
+      
+      const saveUser = await existingUser.save();
+      console.log(saveUser);
+
+      res.json(saveUser);
+  }
+  catch (err) {
+    res.status(500).json(err).send();
+    console.log(err);
+  }
 })
 
 module.exports = router;

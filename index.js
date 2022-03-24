@@ -26,6 +26,7 @@ app.listen(PORT, () => console.log("Server started on port" +PORT));
 app.use("/user", require("./routers/userRouter"));
 app.use("/vendor", require("./routers/vendorRouter"));
 app.use("/company", require("./routers/companyRouter"));
+app.use("/creditapp", require("./routers/creditAppRouter"));
 
 //connet to monogDB
 
