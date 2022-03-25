@@ -51,14 +51,86 @@ router.post("/", auth, async (req, res) => {
     });
 
 const vendor = await newVendor.save();
+let vendorId = vendor._id;
 res.status(200).json(vendor).send();
+customCredApps(vendorId,userId);
   }
+
 
 catch (err) {
       res.status(500).json(err).send();
       console.log(err);
     }
+
 });
+
+// adds three custom cred apps 
+async function customCredApps(vendorId, userId) {
+  
+  const defaultCreditApp = new CreditAppCustom({
+    creatorId :userId,
+    vendorId: vendorId,
+    title: "Default",
+    qOne: "",
+    qTwo: "",
+    qThree: "",
+    qFour: "",
+    qFive: "",
+    qSix: "",
+    qSeven: "",
+    qEight: "",
+    qNine: "",
+    qTen: "",
+    tandc: "",
+  });
+  const savedDefaultCreditApp = await defaultCreditApp.save();
+
+  const residentialCreditApp = new CreditAppCustom({
+    creatorId :userId,
+    vendorId: vendorId,
+    title: "Residential",
+    qOne: "",
+    qTwo: "",
+    qThree: "",
+    qFour: "",
+    qFive: "",
+    qSix: "",
+    qSeven: "",
+    qEight: "",
+    qNine: "",
+    qTen: "",
+    tandc: "",
+  });
+  const savedResidentialCreditApp = await residentialCreditApp.save();
+
+  const commercialCreditApp = new CreditAppCustom({
+    creatorId :userId,
+    vendorId: vendorId,
+    title: "Commercial",
+    qOne: "",
+    qTwo: "",
+    qThree: "",
+    qFour: "",
+    qFive: "",
+    qSix: "",
+    qSeven: "",
+    qEight: "",
+    qNine: "",
+    qTen: "",
+    tandc: "",
+  });
+  const savedCommercialCreditApp = await commercialCreditApp.save();
+
+  const existingVendor = await Vendor.findById(vendorId);
+  existingVendor.customCredAppId = [
+  {"Default" :savedDefaultCreditApp._id}, 
+  {"Residential" : savedResidentialCreditApp._id},
+  {"Commercial" : savedCommercialCreditApp._id
+  }]
+
+  existingVendor.save();
+
+}
 
 // get a vendor based off ID
 router.get("/:id", auth, async (req, res) => {
@@ -168,6 +240,7 @@ router.post("/customcreditapp/", auth, async (req, res) => {
   try {
     const {
       vendorId,
+      title,
       qOne,
       qTwo,
       qThree,
@@ -178,11 +251,12 @@ router.post("/customcreditapp/", auth, async (req, res) => {
       qEight,
       qNine,
       qTen,
+      tandc,
     } = req.body;
     const creatorId = req.user;
 
-    if(!qOne){
-      return res.status(400).json({errorMessage: "You need to enter atleast one custom question."});
+    if(!title || !tandc){
+      return res.status(400).json({errorMessage: "You need to enter a title and terms/conditions."});
     }
 
     if(!req.user) {
@@ -190,18 +264,20 @@ router.post("/customcreditapp/", auth, async (req, res) => {
   }
 
   const newCustomCreditApp = new CreditAppCustom({
-    creatorId, 
-    vendorId, 
-    qOne,
-    qTwo,
-    qThree,
-    qFour,
-    qFive,
-    qSix,
-    qSeven,
-    qEight,
-    qNine,
-    qTen,
+    creatorId :creatorId,
+    vendorId: vendorId,
+    title: title,
+    qOne: qOne,
+    qTwo: qTwo,
+    qThree: qThree,
+    qFour: qFour,
+    qFive: qFive,
+    qSix: qSix,
+    qSeven: qSeven,
+    qEight: qEight,
+    qNine: qNine,
+    qTen: qTen,
+    tandc: tandc,
   });
 
   const savedCustomCreditApp = await newCustomCreditApp.save();
@@ -241,6 +317,7 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
       qEight,
       qNine,
       qTen,
+      tandc,
     } = req.body;
 
     const existingCustomCredApp = await CreditAppCustom.findById(req.params.id)
@@ -261,6 +338,7 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
     existingCustomCredApp.qEight = qEight;
     existingCustomCredApp.qNine = qNine;
     existingCustomCredApp.qTen = qTen;
+    existingCustomCredApp.tandc = tandc;
   
 
   const savedCustomCredApp = await existingCustomCredApp.save();

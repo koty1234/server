@@ -4,6 +4,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const creditAppCustomSchema = new mongoose.Schema({
     creatorId: {type: ObjectId, required: true},
     vendorId: {type: ObjectId, required: true},
+    title: {type: String, required: true},
     qOne: {type: String},
     qTwo: {type: String},
     qThree: {type: String},
@@ -14,6 +15,7 @@ const creditAppCustomSchema = new mongoose.Schema({
     qEight: {type: String},
     qNine: {type: String},
     qTen: {type: String},
+    tandc: {type: String},
 
 },
 {
