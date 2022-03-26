@@ -16,7 +16,6 @@ const creditAppCustomSchema = new mongoose.Schema({
     qNine: {type: String},
     qTen: {type: String},
     tandc: {type: String},
-
 },
 {
     timestamps: true,

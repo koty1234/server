@@ -5,8 +5,6 @@ const creditApplicationSchema = new mongoose.Schema({
     creatorId: {type: ObjectId, required: true},
     companyId: {type: ObjectId, required: true},
     vendorId: {type: ObjectId, required: true},
-    annualVolume: {type: Number, required: true},
-    requestedAmount: {type: Number, required: true},
     creditAppCustom: {type: ObjectId, required: true},
     aOne: {type: String},
     aTwo: {type: String},
