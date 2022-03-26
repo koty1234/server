@@ -10,22 +10,26 @@ router.post("/", async (req, res) => {
     try {
         const {firstName, lastName, position, phone, email, userSide, password, passwordVerify} = req.body;
 
-    //validation
+    //checks to make required fields are filled
     if(!email || !password || !passwordVerify) {
             return res.status(400).json({errorMessage: "You need to fill eveyrthing out."});
     }
+    //checks to make sure password is atleast 8 characters long.
     if (password.length < 8) {
         return res.status(400).json({errorMessage: "Please enter a longer password."});
     }
+    //checks to make sure passwords match
     if (password != passwordVerify) {
         return res.status(400).json({errorMessage: "Your passwords do not match!"});
     }
-    //check if user exists
+    //check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({
         errorMessage: "An account with this email already exists.",
       });
+
+    //VALIDATION PASSED
 
     // password hashing
     const salt = await bcrypt.genSalt();
@@ -53,7 +57,8 @@ router.post("/", async (req, res) => {
         },
         process.env.JWT_SECRET
       );
-  
+
+      //send token to browser
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -68,23 +73,19 @@ router.post("/", async (req, res) => {
         })
         .send();
     } catch (err) {
-      res.status(500).send();
-      console.log(err);
+      res.status(500).json(err).send();
     }
-  });
+});
 
-// checks is browser is loggedin
+// is constantly called to check if browser is logged in
 router.get("/isloggedin", (req, res) => {
   try {
     const token = req.cookies.token;
-
     if (!token) return res.json(null);
-
     const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
-
     res.json(validatedUser.id);
   } catch (err) {
-    return res.json(null);
+    return res.status(500).json(err).send();
   }
 });
 
@@ -92,12 +93,10 @@ router.get("/isloggedin", (req, res) => {
 router.get("/", auth, async (req, res) => {
   try {
     if (!req.user) return res.json("No user");
-
     const existingUser = await User.findById(req.user);
-
     res.json(existingUser);
   } catch (err) {
-    return res.json(null);
+    return res.json(err).send();
   }
 });
 
