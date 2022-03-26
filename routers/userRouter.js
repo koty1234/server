@@ -78,7 +78,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-// is constantly called to check if browser is logged in
+// used to verify if browser is logged in
 router.get("/isloggedin", (req, res) => {
   try {
     const token = req.cookies.token;
@@ -103,39 +103,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-//TO BE REMOVED
-router.patch("/attachid", auth, async (req, res) => {
-    try {
-        const {passedId} = req.body;
-        const userId = req.user;
-        
-        //check if ID is passed
-        if (!passedId) {
-            return res.status(400).json({errorMessage: "No user"});
-        }
-
-        // find existing user and determin UserSide
-        const existingUser = await User.findById(userId);
-        if (!existingUser){
-            return res.status(400).json({errorMessage: "No user with this ID is found"});
-        }
-        // determind where to put userId
-        if(existingUser.userSide == "vendor") existingUser.vendorId = passedId;
-        else if(existingUser.userSide == "company") existingUser.companyId = passedId;
-        else {
-          //do stuff if userSide isn't set.
-        }
-
-        const saveUser = await existingUser.save();
-        res.json(saveUser);
-    }
-    catch (err) {
-      res.status(500).send();
-      console.log(err);
-    }
-})
-
-//update a user
+//updates user infomation
 router.patch("/", auth, async (req, res) => {
   try {
     const {

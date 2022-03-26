@@ -4,7 +4,7 @@ const Vendor = require("../models/vendorModel");
 const User = require("../models/userModel");
 const auth = require("../middleware/auth");
 
-//creates a new vendor
+//creates a new vendor -> sends to finishSetup()
 router.post("/", auth, async (req, res) => {
     const userId = req.user;
     try {
@@ -22,19 +22,19 @@ router.post("/", auth, async (req, res) => {
           } = req.body;
 
     //check if fields are empty
-    if(!companyName || !address || !city || !yib) {
+    if(!companyName || !address || !city || !yib || businessPhone || businessEmail) {
             return res.status(400).json({errorMessage: "You need to fill eveyrthing out."}).send();
     }
-    //check if vendor already exists
+    //check if vendor already exists (based off email and phone)
     const existingPhone = await Vendor.findOne({ businessPhone });
     const existingEmail = await Vendor.findOne({ businessEmail });
     if (existingPhone || existingEmail)
       return res.status(400).json({
-        errorMessage: "An account with this email already exists.",
+        errorMessage: "An account with this email or phone number already exists.",
       });
 
-    //create new vendor in database
-
+    //VALIDATION SUCCESSFUL
+    //create new vendor in database with creator as default ADMIN
     const newVendor = new Vendor({
       creatorId: userId,
       userIds: [{"admin" :userId}],
@@ -50,23 +50,25 @@ router.post("/", auth, async (req, res) => {
       website,
     });
 
-const vendor = await newVendor.save();
-let vendorId = vendor._id;
-res.status(200).json(vendor).send();
-customCredApps(vendorId,userId);
-  }
+    const vendor = await newVendor.save();
+    let vendorId = vendor._id;
+    res.status(200).json(vendor).send();
+
+    // once complete, send to finishSetup()
+    finishSetup(vendorId,userId);
+    }
 
 
 catch (err) {
-      res.status(500).json(err).send();
+      res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
       console.log(err);
     }
-
 });
 
-// adds three custom cred apps 
-async function customCredApps(vendorId, userId) {
+// adds three custom credit apps + attaches Vendor ID to creator.
+async function finishSetup(vendorId, userId) {
   
+  // creates Default Custom Credit App
   const defaultCreditApp = new CreditAppCustom({
     creatorId :userId,
     vendorId: vendorId,
@@ -84,7 +86,7 @@ async function customCredApps(vendorId, userId) {
     tandc: "",
   });
   const savedDefaultCreditApp = await defaultCreditApp.save();
-
+  // creates Residential Custom Credit App
   const residentialCreditApp = new CreditAppCustom({
     creatorId :userId,
     vendorId: vendorId,
@@ -102,7 +104,7 @@ async function customCredApps(vendorId, userId) {
     tandc: "",
   });
   const savedResidentialCreditApp = await residentialCreditApp.save();
-
+  // creates Commercial Custom Credit App
   const commercialCreditApp = new CreditAppCustom({
     creatorId :userId,
     vendorId: vendorId,
@@ -120,32 +122,35 @@ async function customCredApps(vendorId, userId) {
     tandc: "",
   });
   const savedCommercialCreditApp = await commercialCreditApp.save();
-
+  // attaches IDs to vendor
   const existingVendor = await Vendor.findById(vendorId);
   existingVendor.customCredAppId = [
   {"Default" :savedDefaultCreditApp._id}, 
   {"Residential" : savedResidentialCreditApp._id},
   {"Commercial" : savedCommercialCreditApp._id
   }]
-
   existingVendor.save();
 
+  // attach vendorID to user.
+  const existingUser = await User.findById(userId);
+  existingUser.vendorId = vendorId;
+  existingUser.save();
 }
 
-// get a vendor based off ID
+// get a vendor by passing vendorId
 router.get("/:id", auth, async (req, res) => {
-
   try{
    let vendor = await Vendor.findById(req.params.id);
+   if(vendor.userIds[0].admin != req.user)  res.json({errorMessage: "Unauthorized"})
    res.json(vendor);
   }
-  catch(err) {
-      res.status(500).send();
-      console.log(err);
+  catch (err) {
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
+    console.log(err);
   }
 })
 
-// update a vendor based off ID
+// update a vendor by passing vendorId
 router.patch("/:id", auth, async (req, res) => {
   try {
     const {
@@ -162,20 +167,19 @@ router.patch("/:id", auth, async (req, res) => {
     } = req.body;
       const vendorId = req.params.id;
       
-      //check if snippetID is given
+      //check if vendorId is passed
       if (!vendorId) {
-          return res.status(400).json({errorMessage: "No vendor Id"});
+          return res.status(400).json({errorMessage: "No vendor ID passed"});
       }
 
+      // check if Authorized
       const existingVendor = await Vendor.findById(vendorId);
-      if (!existingVendor){
+      if (!existingVendor)
           return res.status(400).json({errorMessage: "No vendor with this ID is found"});
-      }
 
-      //will need to fix for unauthorized
-      //if(existingSnippet.userIds.toString() != req.user){
-       //   return res.status(401).json({errorMessage: "Unauthorized"});
-      //}
+      // check if Authorized
+      if(existingVendor.userIds[0].admin != req.user)  
+          return res.status(400).json({errorMessage: "Unauthorized"});
 
       
       existingVendor.companyName = companyName;
@@ -188,122 +192,38 @@ router.patch("/:id", auth, async (req, res) => {
       existingVendor.businessPhone = businessPhone;
       existingVendor.businessEmail = businessEmail;
       existingVendor.website = website;
-
       const saveVendor = await existingVendor.save();
-
       res.json(saveVendor);
   }
   catch (err) {
-    res.status(500).json(err).send();
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
     console.log(err);
   }
 })
 
-// add custom cred app ID to vendor
-router.patch("/:id", auth, async (req, res) => {
-try {
-        const vendorId = req.params.id;
-        const {passedId} = req.body;
-
-        if (!passedId) {
-          return res.status(400).json({errorMessage: "No passed ID"});
-      }
-
-      const existingVendor = await Vendor.findById(vendorId);
-      if (!existingVendor){
-        return res.status(400).json({errorMessage: "No vendor with this ID is found"});
-      }
-
-      //check if already has customCreditApp if they don't - will add
-      if (!existingVendor.customCredAppId[0]){
-        existingVendor.customCredAppId = [{currentCustomApp: passedId}];
-      }
-      //if they do - will move existing to old and add current to current
-      else {
-        oldCustomCreditApp = existingVendor.customCredAppId[0].currentCustomApp;
-        existingVendor.customCredAppId = [{currentCustomApp: passedId}, 
-          {oldCustomApp: oldCustomCreditApp}];
-      }
-      existingVendor.save();
-      res.json(existingVendor).send();
-
-}
-    catch(err) {
-        res.status(500).send();
-        console.log(err);
-    }
-
-})
-
-// create custom credit app
-router.post("/customcreditapp/", auth, async (req, res) => {
-  try {
-    const {
-      vendorId,
-      title,
-      qOne,
-      qTwo,
-      qThree,
-      qFour,
-      qFive,
-      qSix,
-      qSeven,
-      qEight,
-      qNine,
-      qTen,
-      tandc,
-    } = req.body;
-    const creatorId = req.user;
-
-    if(!title || !tandc){
-      return res.status(400).json({errorMessage: "You need to enter a title and terms/conditions."});
-    }
-
-    if(!req.user) {
-      return res.status(400).json({errorMessage: "Nobody signed in"});
-  }
-
-  const newCustomCreditApp = new CreditAppCustom({
-    creatorId :creatorId,
-    vendorId: vendorId,
-    title: title,
-    qOne: qOne,
-    qTwo: qTwo,
-    qThree: qThree,
-    qFour: qFour,
-    qFive: qFive,
-    qSix: qSix,
-    qSeven: qSeven,
-    qEight: qEight,
-    qNine: qNine,
-    qTen: qTen,
-    tandc: tandc,
-  });
-
-  const savedCustomCreditApp = await newCustomCreditApp.save();
-  res.json(savedCustomCreditApp);
-  }
-  catch (err) {
-    res.status(500).send();
-    console.log(err);
-  }
-})
-
-// get a customCred from Id
+// get a customCredApp from Id
 router.get("/customcreditapp/:id", auth, async (req, res) => {
-  // try to find by userId attached to vendor
+  // try to find by Id attached to vendor
   const customCredAppId = req.params.id;
   try{
    let vendor = await CreditAppCustom.findById(customCredAppId);
+
+   //checks for Authorization
+   let userVendorId = await User.findById(req.user);
+   if(existingCustomCredApp.vendorId != userVendorId){
+     res.status(400).json({errorMessage: "Unauthorized"});
+   }
+
    res.json(vendor);
    res.status(200).send();
   }
-  catch {
-      res.status(500).send();
+  catch (err) {
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
+    console.log(err);
   }
 })
 
-// update custom credit app from Id
+// update a customCredApp from Id
 router.patch("/customcreditapp/:id", auth, async (req, res) => {
   try {
     const {
@@ -327,6 +247,11 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
     if(!req.user) {
       return res.status(400).json({errorMessage: "Nobody signed in"});
     }
+    //checks for Authorization
+    let userVendorId = await User.findById(req.user);
+    if(existingCustomCredApp.vendorId != userVendorId){
+      res.status(400).json({errorMessage: "Unauthorized"});
+    }
 
     existingCustomCredApp.qOne = qOne;
     existingCustomCredApp.qTwo = qTwo;
@@ -340,12 +265,11 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
     existingCustomCredApp.qTen = qTen;
     existingCustomCredApp.tandc = tandc;
   
-
   const savedCustomCredApp = await existingCustomCredApp.save();
   res.json(savedCustomCredApp);
   }
   catch (err) {
-    res.status(500).send();
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
     console.log(err);
   }
 })
