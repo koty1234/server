@@ -73,7 +73,8 @@ router.post("/", async (req, res) => {
         })
         .send();
     } catch (err) {
-      res.status(500).json(err).send();
+      res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+      console.log(err);
     }
 });
 
@@ -85,22 +86,24 @@ router.get("/isloggedin", (req, res) => {
     const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
     res.json(validatedUser.id);
   } catch (err) {
-    return res.status(500).json(err).send();
+    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    console.log(err);
   }
 });
 
 // get user details
 router.get("/", auth, async (req, res) => {
   try {
-    if (!req.user) return res.json("No user");
+    if (!req.user) return res.json({errorMessage: "No user"});
     const existingUser = await User.findById(req.user);
     res.json(existingUser);
   } catch (err) {
-    return res.json(err).send();
+    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    console.log(err);
   }
 });
 
-//used to update a user (primarily to add businessID) NEEDS WORK
+//TO BE REMOVED
 router.patch("/attachid", auth, async (req, res) => {
     try {
         const {passedId} = req.body;
@@ -132,7 +135,7 @@ router.patch("/attachid", auth, async (req, res) => {
     }
 })
 
-//update a user with
+//update a user
 router.patch("/", auth, async (req, res) => {
   try {
     const {
@@ -144,20 +147,16 @@ router.patch("/", auth, async (req, res) => {
     } = req.body;
 
       const existingUser = await User.findById(req.user);
-    console.log(existingUser);
       existingUser.firstName = firstName,
       existingUser.lastName = lastName,
       existingUser.email = email,
       existingUser.phone = phone,
       existingUser.position = position
-      
       const saveUser = await existingUser.save();
-      console.log(saveUser);
-
       res.json(saveUser);
   }
   catch (err) {
-    res.status(500).json(err).send();
+    res.status(500).json({errorMessage : "Whoops! Something went wrong."}).send();
     console.log(err);
   }
 })
