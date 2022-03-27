@@ -10,14 +10,14 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000","https://cred-check-client.herokuapp.com"] ,
+    origin: ["http://localhost:3001","http://0.0.0.0:3001","https://vendor-client-dev.herokuapp.com"] ,
     credentials: true,
 })
 );
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log("Server started on port" +PORT));
+app.listen(PORT, () => console.log("Server started on port " +PORT));
 
 //set up different routers
 app.use("/user", require("./routers/userRouter"));

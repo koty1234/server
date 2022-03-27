@@ -22,7 +22,7 @@ router.post("/", auth, async (req, res) => {
           } = req.body;
 
     //check if fields are empty
-    if(!companyName || !address || !city || !yib || businessPhone || businessEmail) {
+    if(!companyName || !address || !city || !yib || !businessPhone || !businessEmail) {
             return res.status(400).json({errorMessage: "You need to fill eveyrthing out."}).send();
     }
     //check if vendor already exists (based off email and phone)
@@ -206,19 +206,18 @@ router.get("/customcreditapp/:id", auth, async (req, res) => {
   // try to find by Id attached to vendor
   const customCredAppId = req.params.id;
   try{
-   let vendor = await CreditAppCustom.findById(customCredAppId);
+   let customCredApp = await CreditAppCustom.findById(customCredAppId);
 
    //checks for Authorization
-   let userVendorId = await User.findById(req.user);
-   if(existingCustomCredApp.vendorId != userVendorId){
-     res.status(400).json({errorMessage: "Unauthorized"});
-   }
+   let user = await User.findById(req.user);
 
-   res.json(vendor);
-   res.status(200).send();
+   if(customCredApp.vendorId.toString() != user.vendorId.toString()){
+     return res.status(400).json({errorMessage: "Unauthorized"});
+   }
+    res.status(200).json(customCredApp);
   }
   catch (err) {
-    res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
+   // res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
   }
 })
@@ -248,9 +247,9 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
       return res.status(400).json({errorMessage: "Nobody signed in"});
     }
     //checks for Authorization
-    let userVendorId = await User.findById(req.user);
-    if(existingCustomCredApp.vendorId != userVendorId){
-      res.status(400).json({errorMessage: "Unauthorized"});
+    let user = await User.findById(req.user);
+    if(existingCustomCredApp.vendorId.toString() != user.vendorId.toString()){
+      return res.status(400).json({errorMessage: "Unauthorized"});
     }
 
     existingCustomCredApp.qOne = qOne;

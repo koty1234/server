@@ -5,7 +5,7 @@ const creditApplicationSchema = new mongoose.Schema({
     creatorId: {type: ObjectId, required: true},
     companyId: {type: ObjectId, required: true},
     vendorId: {type: ObjectId, required: true},
-    creditAppCustom: {type: ObjectId, required: true},
+    creditAppCustomId: {type: ObjectId, required: true},
     aOne: {type: String},
     aTwo: {type: String},
     aThree: {type: String},
@@ -16,6 +16,9 @@ const creditApplicationSchema = new mongoose.Schema({
     aEight: {type: String},
     aNine: {type: String},
     aTen: {type: String},
+    tandc: {type: Boolean},
+    tandcInternal: {type: Boolean},
+    signature: {type: Object},
 },
 {
     timestamps: true,

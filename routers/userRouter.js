@@ -84,6 +84,9 @@ router.get("/isloggedin", (req, res) => {
     const token = req.cookies.token;
     if (!token) return res.json(null);
     const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
+    //checks to make sure User is in database (not disabled user or deleted user)
+    let user = User.findById(validatedUser.id);
+    if(!user.data) return res.json(null);
     res.json(validatedUser.id);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
