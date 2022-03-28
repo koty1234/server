@@ -4,8 +4,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const creditApplicationSchema = new mongoose.Schema({
     creatorId: {type: ObjectId, required: true},
     companyId: {type: ObjectId, required: true},
-    vendorId: {type: ObjectId, required: true},
-    creditAppCustomId: {type: ObjectId, required: true},
+    customCredAppId: {type: ObjectId, required: true},
     aOne: {type: String},
     aTwo: {type: String},
     aThree: {type: String},
