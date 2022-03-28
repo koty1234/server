@@ -79,15 +79,15 @@ router.post("/", async (req, res) => {
 });
 
 // used to verify if browser is logged in
-router.get("/isloggedin", (req, res) => {
+router.get("/isloggedin", async (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) return res.json(null);
     const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
     //checks to make sure User is in database (not disabled user or deleted user)
-    let user = User.findById(validatedUser.id);
-    if(!user.data) return res.json(null);
-    res.json(validatedUser.id);
+    let user = await User.findById(validatedUser.id);
+    if(!user.id) return res.json(null);
+    res.json(user._id);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
