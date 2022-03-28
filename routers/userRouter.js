@@ -86,7 +86,7 @@ router.get("/isloggedin", async (req, res) => {
     const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
     //checks to make sure User is in database (not disabled user or deleted user)
     let user = await User.findById(validatedUser.id);
-    if(!user.id) return res.json(null);
+    if(!user._id) return res.json(null);
     res.json(user._id);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
