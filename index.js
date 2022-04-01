@@ -52,11 +52,11 @@ else {
         resave: false,
         saveUninitialized: true,
         store: sessionStore,
-        httpOnly: true,
         cookie: {
-            maxAge: 1000*60*60,
-            sameSite: "None",
             secure: true,
+            httpOnly: true,
+            sameSite: 'none',
+            maxAge: 1000*60*60,
 
         }
 }));
