@@ -31,15 +31,13 @@ const sessionStore = new MongoStore({
 
 if(process.env.NODE_ENV === "development"){
     app.use(session({ 
-        name: "Session",
+        name: "Bsodb",
         secret: process.env.JWT_SECRET,
         resave: false,
         saveUninitialized: true,
         store: sessionStore,
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
         cookie: {
+            secure: true,
             maxAge: 1000*60*60
         }
 }));
@@ -52,10 +50,10 @@ else {
         resave: false,
         saveUninitialized: true,
         store: sessionStore,
-        httpOnly: true,
         cookie: {
             maxAge: 1000*60*60,
-            sameSite: "None",
+            httpOnly: true,
+            sameSite: 'none',
             secure: true,
 
         }
