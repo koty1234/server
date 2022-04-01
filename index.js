@@ -53,7 +53,6 @@ else {
         saveUninitialized: true,
         store: sessionStore,
         httpOnly: true,
-        sameSite: "None",
         secure: true,
         cookie: {
             maxAge: 1000*60*60
