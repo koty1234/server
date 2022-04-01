@@ -52,10 +52,10 @@ else {
         resave: false,
         saveUninitialized: true,
         store: sessionStore,
+        secure: true,
+        httpOnly: true,
+        sameSite: 'none',
         cookie: {
-            secure: true,
-            httpOnly: true,
-            sameSite: 'none',
             maxAge: 1000*60*60,
 
         }
