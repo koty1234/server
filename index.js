@@ -54,7 +54,7 @@ else {
         store: sessionStore,
         secure: true,
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: "None",
         cookie: {
             maxAge: 1000*60*60,
 
