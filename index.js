@@ -29,25 +29,36 @@ const sessionStore = new MongoStore({
     collection: 'sessions'
 });
 
-app.use(session({ 
-    name: "Session",
-    secret: process.env.JWT_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: sessionStore,
-    httpOnly: true,
-    sameSite:
-      process.env.NODE_ENV === "development"
-        ? "lax"
-        : process.env.NODE_ENV === "production" && "none",
-    secure:
-      process.env.NODE_ENV === "development"
-        ? false
-        : process.env.NODE_ENV === "production" && true,
-    cookie: {
-        maxAge: 1000*60*60
-    } 
+if(process.env.NODE_ENV === "development"){
+    app.use(session({ 
+        name: "Session",
+        secret: process.env.JWT_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        store: sessionStore,
+        httpOnly: true,
+        sameSite: lax,
+        secure: false,
+        cookie: {
+            maxAge: 1000*60*60
+        }
 }));
+}
+else {
+    app.use(session({ 
+        name: "Session",
+        secret: process.env.JWT_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        store: sessionStore,
+        httpOnly: true,
+        sameSite: none,
+        secure: true,
+        cookie: {
+            maxAge: 1000*60*60
+        }
+}));
+};
 
 //set up different routers
 app.use("/user", require("./routers/userRouter"));
