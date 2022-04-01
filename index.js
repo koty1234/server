@@ -37,7 +37,7 @@ if(process.env.NODE_ENV === "development"){
         saveUninitialized: true,
         store: sessionStore,
         httpOnly: true,
-        sameSite: lax,
+        sameSite: "lax",
         secure: false,
         cookie: {
             maxAge: 1000*60*60
@@ -45,6 +45,7 @@ if(process.env.NODE_ENV === "development"){
 }));
 }
 else {
+    console.log("here");
     app.use(session({ 
         name: "Session",
         secret: process.env.JWT_SECRET,
@@ -52,7 +53,7 @@ else {
         saveUninitialized: true,
         store: sessionStore,
         httpOnly: true,
-        sameSite: none,
+        sameSite: "None",
         secure: true,
         cookie: {
             maxAge: 1000*60*60
