@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken');
 
 function auth(req, res, next) {
+
+
     try {
-        const token = req.cookies.token;
+        const token = req.session.data.userId;
         if(!token) {
             return res.status(401).json({errormessage: "Unauthorized."});
         }
-        const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = validatedUser.id;
+        req.user = token
         next();
     }
     catch (err) {

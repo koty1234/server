@@ -49,29 +49,9 @@ router.post("/", async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // create a JWT token
+    req.session.data = {userId: savedUser._id.toString()};
+    res.status(200).json(savedUser);
 
-    const token = jwt.sign(
-        {
-          id: savedUser._id,
-        },
-        process.env.JWT_SECRET
-      );
-
-      //send token to browser
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          sameSite:
-            process.env.NODE_ENV === "development"
-              ? "lax"
-              : process.env.NODE_ENV === "production" && "none",
-          secure:
-            process.env.NODE_ENV === "development"
-              ? false
-              : process.env.NODE_ENV === "production" && true,
-        })
-        .send();
     } catch (err) {
       res.status(500).send({errorMessage: "Whoops! Something went wrong."});
       console.log(err);
@@ -81,10 +61,9 @@ router.post("/", async (req, res) => {
 // used to verify if browser is logged in
 router.get("/isloggedin", async (req, res) => {
   try {
-    const token = req.cookies.token;
-    if (!token) return res.json(null);
-    const validatedUser = jwt.verify(token, process.env.JWT_SECRET);
-    res.json(validatedUser.id);
+    if (!req.session.data) return res.json(null);
+    const userId = req.session.data.userId;
+    res.json(userId);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
