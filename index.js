@@ -29,7 +29,7 @@ const sessionStore = new MongoStore({
     collection: 'sessions'
 });
 
-  var sess =  app.use(session({ 
+  var sess =  { 
         name: "Session",
         secret: process.env.JWT_SECRET,
         resave: false,
@@ -39,12 +39,14 @@ const sessionStore = new MongoStore({
             httpOnly: true,
             maxAge: 1000*60*60
         }
-}));
+};
 
 if (app.get('env') === 'production') {
 app.set('trust proxy', 1);
 sess.cookie.secure = true;
 }
+
+app.use(session(sess));
 
 //set up different routers
 app.use("/user", require("./routers/userRouter"));
