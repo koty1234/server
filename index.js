@@ -46,7 +46,7 @@ if(process.env.NODE_ENV === "development"){
 }
 else {
     console.log("here");
-    app.use(session({ 
+  var sess =  app.use(session({ 
         name: "Session",
         secret: process.env.JWT_SECRET,
         resave: false,
@@ -55,10 +55,11 @@ else {
         cookie: {
             httpOnly: true,
             sameSite: 'none',
-            secure: true,
             maxAge: 1000*60*60
         }
 }));
+app.set('trust proxy', 1);
+sess.cookie.secure = true;
 };
 
 //set up different routers
