@@ -36,16 +36,10 @@ const sessionStore = new MongoStore({
         saveUninitialized: true,
         store: sessionStore,
         cookie: {
-            httpOnly: true,
             maxAge: 1000*60*60
         }
 };
 
-if (app.get('env') === 'production') {
-app.set('trust proxy', 1);
-sess.cookie.secure = true;
-sess.cookie.sameSite = 'none';
-}
 
 app.use(session(sess));
 
