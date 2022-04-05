@@ -29,23 +29,6 @@ const sessionStore = new MongoStore({
     collection: 'sessions'
 });
 
-if(process.env.NODE_ENV === "development"){
-    app.use(session({ 
-        name: "Bsodb",
-        secret: process.env.JWT_SECRET,
-        resave: false,
-        saveUninitialized: true,
-        store: sessionStore,
-        cookie: {
-            httpOnly: true,
-            sameSite: 'lax',
-            secure: false,
-            maxAge: 1000*60*60
-        }
-}));
-}
-else {
-    console.log("here");
   var sess =  app.use(session({ 
         name: "Session",
         secret: process.env.JWT_SECRET,
@@ -54,13 +37,14 @@ else {
         store: sessionStore,
         cookie: {
             httpOnly: true,
-            sameSite: 'none',
             maxAge: 1000*60*60
         }
 }));
+
+if (app.get('env') === 'production') {
 app.set('trust proxy', 1);
 sess.cookie.secure = true;
-};
+}
 
 //set up different routers
 app.use("/user", require("./routers/userRouter"));
