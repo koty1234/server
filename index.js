@@ -37,7 +37,9 @@ if(process.env.NODE_ENV === "development"){
         saveUninitialized: true,
         store: sessionStore,
         cookie: {
-            secure: true,
+            httpOnly: true,
+            sameSite: 'none',
+            secure: false,
             maxAge: 1000*60*60
         }
 }));
@@ -51,11 +53,10 @@ else {
         saveUninitialized: true,
         store: sessionStore,
         cookie: {
-            maxAge: 1000*60*60,
             httpOnly: true,
             sameSite: 'none',
-            secure: true,
-
+            secure: false,
+            maxAge: 1000*60*60
         }
 }));
 };

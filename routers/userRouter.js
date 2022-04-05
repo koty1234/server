@@ -2,7 +2,6 @@ const router = require("express").Router();
 const User = require("../models/userModel");
 const auth = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 
 //creates a new user
