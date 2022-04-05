@@ -54,8 +54,8 @@ else {
         store: sessionStore,
         cookie: {
             httpOnly: true,
-            sameSite: 'none',
-            secure: true,
+            sameSite: 'lax',
+            secure: false,
             maxAge: 1000*60*60
         }
 }));
