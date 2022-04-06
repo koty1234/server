@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
 
     req.session.data = {userId: savedUser._id.toString()};
     console.log(req.session.data);
-    res.status(200).json(req.session.data);
+    res.status(200).json(req.session);
 
     } catch (err) {
       res.status(500).send({errorMessage: "Whoops! Something went wrong."});
@@ -63,18 +63,7 @@ router.get("/isloggedin", async (req, res) => {
   try {
     if (!req.session.data) return res.json(null);
     const userId = req.session.data.userId;
-    //res.json(userId);
-  res.cookie("name", "express", {
-    httpOnly: true,
-    sameSite:
-    process.env.NODE_ENV === "development"
-      ? "lax"
-      : process.env.NODE_ENV === "production" && "none",
-  secure:
-    process.env.NODE_ENV === "development"
-      ? false
-      : process.env.NODE_ENV === "production" && true,
-}).send();
+    res.json(userId);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
