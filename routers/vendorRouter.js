@@ -3,7 +3,7 @@ const CreditAppCustom = require("../models/creditAppCustom");
 const Vendor = require("../models/vendorModel");
 const User = require("../models/userModel");
 const auth = require("../middleware/auth");
-
+//note
 //creates a new vendor -> sends to finishSetup()
 router.post("/", auth, async (req, res) => {
     const userId = req.user;
