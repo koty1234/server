@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 function auth(req, res, next) {
 
     try {
-        const token = req.session.data.userId;
+        const token = req.session.user;
         if(!token) {
             return res.status(401).json({errormessage: "Unauthorized."});
         }

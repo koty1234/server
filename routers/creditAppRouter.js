@@ -6,9 +6,9 @@ const auth = require("../middleware/auth");
 // creates a new credit app
 router.post("/", auth, async (req, res) => {
     const userId = req.user;
-    const companyId = await Company.findById(userId);
     try{
         const {
+          companyId,
             customCredAppId,
             aOne,
             aTwo,
@@ -43,8 +43,8 @@ router.post("/", auth, async (req, res) => {
         aEight: aEight || '',
         aNine: aNine || '',
         aTen: aTen || '',
-        tandc: tandc || '',
-        tandcInternal: tandcInternal || '',
+        tandc: tandc || false,
+        tandcInternal: tandcInternal || false,
         signature: signature || '',
     });
 
@@ -58,18 +58,17 @@ router.post("/", auth, async (req, res) => {
       }
 })
 
-
 // get a credit application by Id
 router.get("/:id", auth, async (req, res) => {
     try{
      let creditApp = await CreditApplication.findById(req.params.id);
-     if(!creditApp.data)  res.json({errorMessage: "No credit application found."});
-     if(!creditApp.data.customCredAppId) res.json({errorMessage: "Whoops! Something went wrong"})
-     res.json(creditApp.data);
+     if(!creditApp)  res.json({errorMessage: "No credit application found."});
+     if(!creditApp.customCredAppId) res.json({errorMessage: "Whoops! Something went wrong"})
+     res.json(creditApp);
     }
     catch (err) {
-      res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
       console.log(err);
+      res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     }
   })
 

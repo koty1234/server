@@ -48,8 +48,7 @@ router.post("/", async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    req.session.data = {userId: savedUser._id.toString()};
-    console.log(req.session.data);
+    req.session.user = savedUser._id.toString();
     res.status(200).json(req.session);
 
     } catch (err) {
@@ -64,6 +63,33 @@ router.get("/isloggedin", async (req, res) => {
     if (!req.session.data) return res.json(null);
     const userId = req.session.data.userId;
     res.json(userId);
+  } catch (err) {
+    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    console.log(err);
+  }
+});
+
+// log user in
+router.post("/login", async (req, res) => {
+  const {email, password} = req.body;
+
+  if(!email || !password) {
+    return res.status(400).json({errorMessage: "You need to enter an email and password!."});
+}
+  try {
+    const existingUser = await User.findOne({email});
+    if(!existingUser) {
+      return res.status(401).json({errorMessage: "Wrong email or password"});
+    }
+
+    const isCorrectPassword = await bcrypt.compare(password, existingUser.passwordHash);
+    if (!isCorrectPassword) {
+      return res.status(401).json({errorMessage: "Wrong email or password"});
+    }
+
+    req.session.user = existingUser._id.toString();
+    res.status(200).json(req.session);
+
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
     console.log(err);

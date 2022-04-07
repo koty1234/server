@@ -63,6 +63,7 @@ const jwt = require("jsonwebtoken");
     });
 
 let company = await newCompany.save();
+req.session.company = company._id.toString();
 res.status(200).send();
   }
 
