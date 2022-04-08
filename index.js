@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(cors({
     origin: [
         "http://localhost:3000",
+        "http://localhost:3001",
         "https://vendor-client-dev.herokuapp.com",
         "https://company-client-dev.herokuapp.com/"] ,
     credentials: true,
