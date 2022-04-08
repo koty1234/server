@@ -54,3 +54,4 @@ app.use("/user", require("./routers/userRouter"));
 app.use("/vendor", require("./routers/vendorRouter"));
 app.use("/company", require("./routers/companyRouter"));
 app.use("/creditapp", require("./routers/creditAppRouter"));
+app.use("/masterapp", require("./routers/masterAppRouter"));
