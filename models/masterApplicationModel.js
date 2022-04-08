@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const masterApplicationSchema = new mongoose.Schema({
+    companyId: {type: ObjectId, required: true},
     vendorId: {type: ObjectId, required: true},
     creditApplicationId: {type: ObjectId, required: true},
     status: {String}, // Started | Completed | Verified | Approved | Declined | Other
