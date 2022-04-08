@@ -12,7 +12,10 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000","https://vendor-client-dev.herokuapp.com"] ,
+    origin: [
+        "http://localhost:3000",
+        "https://vendor-client-dev.herokuapp.com",
+        "https://company-client-dev.herokuapp.com/"] ,
     credentials: true,
 })
 );
