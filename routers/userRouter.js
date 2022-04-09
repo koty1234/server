@@ -63,8 +63,9 @@ router.get("/isloggedin", async (req, res) => {
     if (!req.session.user) return res.json(null);
     const userId = req.session.user;
     res.json(userId);
+
   } catch (err) {
-    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
   }
 });
@@ -73,25 +74,30 @@ router.get("/isloggedin", async (req, res) => {
 router.post("/login", async (req, res) => {
   const {email, password} = req.body;
 
-  if(!email || !password) {
-    return res.status(400).json({errorMessage: "You need to enter an email and password!."});
-}
   try {
+    //checks if email and password present
+    if(!email || !password) {
+      return res.status(400).json({errorMessage: "You need to enter an email and password!."});
+    }
+
+    //checks if user exists
     const existingUser = await User.findOne({email});
     if(!existingUser) {
       return res.status(401).json({errorMessage: "Wrong email or password"});
     }
 
+    //checks if password is correct
     const isCorrectPassword = await bcrypt.compare(password, existingUser.passwordHash);
     if (!isCorrectPassword) {
       return res.status(401).json({errorMessage: "Wrong email or password"});
     }
 
+    //adds userId to session
     req.session.user = existingUser._id.toString();
     res.status(200).json(req.session);
 
   } catch (err) {
-    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
   }
 });
@@ -100,10 +106,12 @@ router.post("/login", async (req, res) => {
 router.get("/", auth, async (req, res) => {
   try {
     if (!req.user) return res.json({errorMessage: "No user"});
+
     const existingUser = await User.findById(req.user);
-    res.json(existingUser);
-  } catch (err) {
-    res.status(500).send({errorMessage: "Whoops! Something went wrong."});
+    res.status(200).json(existingUser);
+  } 
+  catch (err) {
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     console.log(err);
   }
 });
@@ -119,14 +127,18 @@ router.patch("/", auth, async (req, res) => {
       position,
     } = req.body;
 
-      const existingUser = await User.findById(req.user);
-      existingUser.firstName = firstName,
-      existingUser.lastName = lastName,
-      existingUser.email = email,
-      existingUser.phone = phone,
-      existingUser.position = position
-      const saveUser = await existingUser.save();
-      res.json(saveUser);
+    //checks if user is present
+    if (!req.user) return res.json({errorMessage: "No user"});
+
+    const existingUser = await User.findById(req.user);
+    existingUser.firstName = firstName,
+    existingUser.lastName = lastName,
+    existingUser.email = email,
+    existingUser.phone = phone,
+    existingUser.position = position
+
+    const saveUser = await existingUser.save();
+    res.status(200).json(saveUser);
   }
   catch (err) {
     res.status(500).json({errorMessage : "Whoops! Something went wrong."}).send();

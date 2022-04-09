@@ -3,7 +3,7 @@ const auth = require("../middleware/auth");
 const Reference = require("../models/referenceModel");
 const User = require("../models/userModel");
 
-// creates a new master app
+// creates a new reference (used internally ONLY for now)
 router.post("/", auth, async (req, res) => {
     try{
         const {
@@ -36,21 +36,20 @@ router.post("/", auth, async (req, res) => {
     });
 
     const reference = await newReference.save();
-    res.status(200).json(reference).send();
+    res.status(200).json(reference);
 
     }
     catch (err) {
-        res.status(500).send({errorMessage: "Whoops! Something went wrong."});
-        console.log(err);
+        res.status(500).json({errorMessage: "Whoops! Something went wrong."});
       }
 });
 
-// get all references for Contractor
+// get all references for a Contractor by passing contractorId
 router.get("/company/:id", auth, async (req, res) => {
   try{
    let references = await Reference.find({ companyId: req.params.id});
    if(!references)  res.json({errorMessage: "No references found."});
-   res.json(references);
+   res.status(200).json(references);
   }
   catch (err) {
     console.log(err);
@@ -58,7 +57,7 @@ router.get("/company/:id", auth, async (req, res) => {
   }
 })
 
-// update a reference by Id
+// update a reference by Id with Verification (FOR CONTRACTOR)
 router.patch("/company/:id", auth, async (req, res) => {
   try{
     const {
@@ -88,13 +87,12 @@ existingReference.referenceEmail = referenceEmail;
 existingReference.refLength = refLength;
 
 const saveReference = await existingReference.save();
-res.json(saveReference);
+res.status(200).json(saveReference);
   }
 catch (err) {
-  res.status(500).json({errorMessage: "Whoops! Something went wrong."}).send();
+  res.status(500).json({errorMessage: "Whoops! Something went wrong."});
   console.log(err);
 }
 })
-
 
 module.exports = router;
