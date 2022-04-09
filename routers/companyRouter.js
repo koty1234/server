@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/userModel");
 const Company = require("../models/companyModel");
-const Vendor = require("../models/vendorModel");
+const Reference = require("../models/referenceModel");
 const auth = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -65,12 +65,39 @@ const jwt = require("jsonwebtoken");
 let company = await newCompany.save();
 req.session.company = company._id.toString();
 res.status(200).send();
+finishSetup(company._id, userId);
   }
 
 catch (err) {
       res.status(500).send();
+      console.log(err);
     }
   });
+
+  async function finishSetup(companyId, userId){
+    const existingUser = await User.findById(userId);
+    existingUser.companyId = companyId;
+    existingUser.save();
+
+    const referenceOne = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceOne = await referenceOne.save();
+
+    const referenceTwo = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceTwo = await referenceTwo.save();
+
+    const referenceThree = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceThree = await referenceThree.save();
+
+  }
 
 // get a company based off ID
 router.get("/:id", auth, async (req, res) => {
@@ -87,7 +114,7 @@ router.get("/:id", auth, async (req, res) => {
 })
 
 // update a company based off ID
-router.put("/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
   try {
     const {
       companyName,

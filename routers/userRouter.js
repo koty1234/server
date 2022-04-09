@@ -60,8 +60,8 @@ router.post("/", async (req, res) => {
 // used to verify if browser is logged in
 router.get("/isloggedin", async (req, res) => {
   try {
-    if (!req.session.data) return res.json(null);
-    const userId = req.session.data.userId;
+    if (!req.session.user) return res.json(null);
+    const userId = req.session.user;
     res.json(userId);
   } catch (err) {
     res.status(500).send({errorMessage: "Whoops! Something went wrong."});
