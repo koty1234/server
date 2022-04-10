@@ -109,10 +109,10 @@ router.get("/:id", auth, async (req, res) => {
   const companyId = req.params.id;
   try{
    let company = await Company.findById(companyId);
-   res.status(200).json(company).send();
+   res.status(200).json(company);
   }
   catch(err) {
-      res.status(500).json(err).send();
+      res.status(500).json(err);
   }
 })
 
