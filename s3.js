@@ -23,10 +23,18 @@ function uploadFileToS3(file) {
         Body: filestream,
         Key: file.filename,
     }
-
     return s3.upload(uploadParams).promise()
 }
-
 exports.uploadFileToS3 = uploadFileToS3;
 
+
 //downloads a file
+function getFileStream(fileKey) {
+    const downloadParams = {
+      Key: fileKey,
+      Bucket: bucketName
+    }
+  
+    return s3.getObject(downloadParams).createReadStream()
+  }
+  exports.getFileStream = getFileStream
