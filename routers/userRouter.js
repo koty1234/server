@@ -108,7 +108,9 @@ router.get("/", auth, async (req, res) => {
     if (!req.user) return res.json({errorMessage: "No user"});
 
     const existingUser = await User.findById(req.user);
+    if(existingUser){
     res.status(200).json(existingUser);
+    }
   } 
   catch (err) {
     res.status(500).json({errorMessage: "Whoops! Something went wrong."});

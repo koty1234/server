@@ -41,7 +41,7 @@ const sessionStore = new MongoStore({
         store: sessionStore,
         cookie: {
             httpOnly: true,
-            maxAge: 1000*60*60*24
+            maxAge: 1000*60*60*24*10
         }
 };
 

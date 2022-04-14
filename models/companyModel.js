@@ -19,6 +19,8 @@ const companySchema = new mongoose.Schema({
     instagram: {type: String},
     twitter: {type: String},
     linkedin: {type: String},
+    logoKey: {type: String},
+    bannerKey: {type: String},
 },
 {
     timestamps: true,

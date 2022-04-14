@@ -138,10 +138,9 @@ async function finishSetup(vendorId, userId) {
 }
 
 // get a vendor by passing vendorId
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try{
    let vendor = await Vendor.findById(req.params.id);
-   if(vendor.userIds[0].admin != req.user)  res.json({errorMessage: "Unauthorized"})
    res.json(vendor);
   }
   catch (err) {
