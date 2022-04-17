@@ -207,12 +207,6 @@ router.get("/customcreditapp/:id", auth, async (req, res) => {
   try{
    let customCredApp = await CreditAppCustom.findById(customCredAppId);
 
-   //checks for Authorization
-   let user = await User.findById(req.user);
-
-   if(customCredApp.vendorId.toString() != user.vendorId.toString()){
-     return res.status(400).json({errorMessage: "Unauthorized"});
-   }
     res.status(200).json(customCredApp);
   }
   catch (err) {
@@ -251,17 +245,17 @@ router.patch("/customcreditapp/:id", auth, async (req, res) => {
       return res.status(400).json({errorMessage: "Unauthorized"});
     }
 
-    existingCustomCredApp.qOne = qOne;
-    existingCustomCredApp.qTwo = qTwo;
-    existingCustomCredApp.qThree = qThree;
-    existingCustomCredApp.qFour = qFour;
-    existingCustomCredApp.qFive = qFive;
-    existingCustomCredApp.qSix = qSix;
-    existingCustomCredApp.qSeven = qSeven;
-    existingCustomCredApp.qEight = qEight;
-    existingCustomCredApp.qNine = qNine;
-    existingCustomCredApp.qTen = qTen;
-    existingCustomCredApp.tandc = tandc;
+    existingCustomCredApp.qOne = qOne || existingCustomCredApp.qOne;
+    existingCustomCredApp.qTwo = qTwo || existingCustomCredApp.qTwo;
+    existingCustomCredApp.qThree = qThree || existingCustomCredApp.qThree;
+    existingCustomCredApp.qFour = qFour || existingCustomCredApp.qFour;
+    existingCustomCredApp.qFive = qFive || existingCustomCredApp.qFive;
+    existingCustomCredApp.qSix = qSix || existingCustomCredApp.qSix;
+    existingCustomCredApp.qSeven = qSeven || existingCustomCredApp.qSeven;
+    existingCustomCredApp.qEight = qEight || existingCustomCredApp.qEight;
+    existingCustomCredApp.qNine = qNine || existingCustomCredApp.qNine;
+    existingCustomCredApp.qTen = qTen || existingCustomCredApp.qTen;
+    existingCustomCredApp.tandc = tandc || existingCustomCredApp.tandc;
   
   const savedCustomCredApp = await existingCustomCredApp.save();
   res.json(savedCustomCredApp);

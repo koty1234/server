@@ -18,14 +18,13 @@ router.post("/", tempFiles.single('uploadFile'), auth, async (req, res) => {
         const side = req.body.side;
         const vendorId = req.body.vendorId || null;
         const companyId = req.body.companyId || null;
-        console.log(req.body);
 
         if(side == "vendor"){
             if (!vendorId) {
                 return res.status(400).json({errorMessage: "No vendor ID passed"});
             }
   
-        // check if Authorized
+        // check if Vendor exists
         const existingVendor = await Vendor.findById(vendorId);
         if (!existingVendor)
             return res.status(400).json({errorMessage: "No vendor with this ID is found"});
