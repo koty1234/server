@@ -15,6 +15,8 @@ const vendorSchema = new mongoose.Schema({
     businessEmail: {type: String, required: true},
     website: {type: String},
     customCredAppId: {type: Array},
+    logoKey: {type: String},
+    bannerKey: {type: String},
 },
 {
     timestamps: true,

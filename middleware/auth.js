@@ -8,7 +8,6 @@ function auth(req, res, next) {
             return res.status(401).json({errormessage: "Unauthorized."});
         }
         req.user = token
-        console.log(token);
         next();
     }
     catch (err) {

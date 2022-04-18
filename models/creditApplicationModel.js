@@ -17,7 +17,7 @@ const creditApplicationSchema = new mongoose.Schema({
     aTen: {type: String},
     tandc: {type: Boolean},
     tandcInternal: {type: Boolean},
-    signature: {type: Object},
+    signature: {type: String},
 },
 {
     timestamps: true,

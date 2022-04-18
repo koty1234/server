@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000","https://vendor-client-dev.herokuapp.com"] ,
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://vendor-client-dev.herokuapp.com",
+        "https://company-client-dev.herokuapp.com"] ,
     credentials: true,
 })
 );
@@ -37,7 +41,7 @@ const sessionStore = new MongoStore({
         store: sessionStore,
         cookie: {
             httpOnly: true,
-            maxAge: 1000*60*60*24
+            maxAge: 1000*60*60*24*10
         }
 };
 
@@ -54,3 +58,6 @@ app.use("/user", require("./routers/userRouter"));
 app.use("/vendor", require("./routers/vendorRouter"));
 app.use("/company", require("./routers/companyRouter"));
 app.use("/creditapp", require("./routers/creditAppRouter"));
+app.use("/masterapp", require("./routers/masterAppRouter"));
+app.use("/reference", require("./routers/referenceRouter"));
+app.use("/file", require("./routers/fileRouter"));

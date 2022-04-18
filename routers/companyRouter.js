@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/userModel");
 const Company = require("../models/companyModel");
-const Vendor = require("../models/vendorModel");
+const Reference = require("../models/referenceModel");
 const auth = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -65,29 +65,59 @@ const jwt = require("jsonwebtoken");
 let company = await newCompany.save();
 req.session.company = company._id.toString();
 res.status(200).send();
+finishSetup(company._id, userId);
   }
 
 catch (err) {
       res.status(500).send();
+      console.log(err);
     }
   });
 
+  // attaches companyId to User
+  // creates 3X blank references for Contractor
+  async function finishSetup(companyId, userId){
+    const existingUser = await User.findById(userId);
+    existingUser.companyId = companyId;
+    existingUser.save();
+
+    //Reference 1
+    const referenceOne = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceOne = await referenceOne.save();
+
+    //Reference 2
+    const referenceTwo = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceTwo = await referenceTwo.save();
+
+    //Reference 3
+    const referenceThree = new Reference({
+      creatorId :userId,
+      companyId : companyId
+    });
+    const savedReferenceThree = await referenceThree.save();
+
+  }
+
 // get a company based off ID
 router.get("/:id", auth, async (req, res) => {
-  // try to find by userId attached to company
   const companyId = req.params.id;
   try{
    let company = await Company.findById(companyId);
-   res.json(company);
-   res.status(200).send();
+   res.status(200).json(company);
   }
-  catch {
-      res.status(500).send();
+  catch(err) {
+      res.status(500).json(err);
   }
 })
 
 // update a company based off ID
-router.put("/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
   try {
     const {
       companyName,
@@ -108,22 +138,21 @@ router.put("/:id", auth, async (req, res) => {
     } = req.body;
       const companyId = req.params.id;
       
-      //check if snippetID is given
+      //check if companyId is passed
       if (!companyId) {
           return res.status(400).json({errorMessage: "No company Id"});
       }
 
       const existingCompany = await Company.findById(companyId);
       if (!existingCompany){
-          return res.status(400).json({errorMessage: "No company with this ID is found"});
+          return res.status(400).json({errorMessage: "No company was found"});
       }
 
-      //will need to fix for unauthorized
-      //if(existingSnippet.userIds.toString() != req.user){
-       //   return res.status(401).json({errorMessage: "Unauthorized"});
-      //}
-
-      
+      //Checks for Authorization (USER has premission to edit Company)
+      const existingUser = await User.findById(req.user);
+      if(existingUser.companyId.toString() != companyId){
+          return res.status(401).json({errorMessage: "Unauthorized"});
+      }
       existingCompany.companyName = companyName;
       existingCompany.address = address;
       existingCompany.city = city;
@@ -141,7 +170,6 @@ router.put("/:id", auth, async (req, res) => {
       existingCompany.linkedin = linkedin;
       
       const saveCompany = await existingCompany.save();
-
       res.json(saveCompany);
   }
   catch {
