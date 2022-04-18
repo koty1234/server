@@ -7,6 +7,7 @@ const unlinkFile = util.promisify(fs.unlink)
 const { uploadFileToS3, getObject } = require('../s3');
 const Vendor = require("../models/vendorModel");
 const Company = require("../models/companyModel");
+const CreditApplication = require("../models/creditApplicationModel");
 const tempFiles = multer({dest: './tempfiles'});
 
 
@@ -32,7 +33,7 @@ router.post("/", tempFiles.single('uploadFile'), auth, async (req, res) => {
         // check if Authorized
         if(existingVendor.userIds[0].admin != req.user)  
             return res.status(400).json({errorMessage: "Unauthorized"});
-
+            console.log(uploadFile);
         const s3File = await uploadFileToS3(uploadFile);
         await unlinkFile(uploadFile.path);
 
@@ -49,7 +50,7 @@ router.post("/", tempFiles.single('uploadFile'), auth, async (req, res) => {
     } 
     else if(side == "company"){
         if (!companyId) {
-            return res.status(400).json({errorMessage: "No vendor ID passed"});
+            return res.status(400).json({errorMessage: "No company ID passed"});
         }
 
     // check if Authorized
@@ -61,6 +62,7 @@ router.post("/", tempFiles.single('uploadFile'), auth, async (req, res) => {
     if(existingCompany.userIds[0].admin != req.user)  
         return res.status(400).json({errorMessage: "Unauthorized"});
 
+    console.log(uploadFile);
     const s3File = await uploadFileToS3(uploadFile);
     await unlinkFile(uploadFile.path);
 
@@ -73,7 +75,7 @@ router.post("/", tempFiles.single('uploadFile'), auth, async (req, res) => {
         existingCompany.bannerKey = s3File.Key;
         const saveCompany = await existingCompany.save();
         res.json(saveCompany);
-    }
+    } 
     }
 }
     catch (err) {
@@ -138,5 +140,31 @@ catch(err) {
     console.log(err);
 }
 });
+
+router.post("/signature", auth, async (req, res) => {
+    try{
+        const rawSignature = req.body.signature;
+        const creditAppId = req.body.creditAppId;
+       const existingCreditApp = await CreditApplication.findById(creditAppId);
+       existingCreditApp.signature = rawSignature;
+       const saveCreditApp = await existingCreditApp.save();
+       res.json(saveCreditApp);
+
+    }
+    catch (err) {
+        res.status(500).json({errorMessage: "Whoops! Something went wrong."});
+        console.log(err);
+      }
+});
+
+router.get("/signature/:id", auth, async (req, res) => {
+    try{
+        const signature = await CreditApplication.findById(req.params.id);
+        res.json(signature.signature);
+    }
+    catch(err) {
+        console.log(err);
+    }
+})
 
 module.exports = router;
