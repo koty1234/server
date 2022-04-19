@@ -71,16 +71,9 @@ router.get("/:id", auth, async (req, res) => {
       console.log(err);
       res.status(500).json({errorMessage: "Whoops! Something went wrong."});
     }
-  })
-
-// get a credit application by Id
-router.get("/search", auth, async (req, res) => {
-  
-  console.log(req.query.companyId);
-
 })
 
-  router.patch("/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
     try {
       const {
         aOne,
@@ -123,6 +116,6 @@ router.get("/search", auth, async (req, res) => {
       res.status(500).json({errorMessage: "Whoops! Something went wrong."});
       console.log(err);
     }
-  })
+})
 
 module.exports = router;

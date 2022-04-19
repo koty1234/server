@@ -75,6 +75,7 @@ router.get("/vendor/:id", auth, async (req, res) => {
   }
 })
 
+//joins together all details for a complete credit app PDF
 router.get("/full/:id", async (req, res)=> {
 
   const response = {

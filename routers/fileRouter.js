@@ -141,6 +141,7 @@ catch(err) {
 }
 });
 
+//for signature of Credit App - stores in MongoDB
 router.post("/signature", auth, async (req, res) => {
     try{
         const rawSignature = req.body.signature;
@@ -157,6 +158,7 @@ router.post("/signature", auth, async (req, res) => {
       }
 });
 
+//get signature from MongoDB
 router.get("/signature/:id", auth, async (req, res) => {
     try{
         const signature = await CreditApplication.findById(req.params.id);
