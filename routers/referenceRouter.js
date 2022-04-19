@@ -11,6 +11,8 @@ router.post("/", auth, async (req, res) => {
           referenceName,
           referencePhoneNumber,
           referenceEmail,
+          referenceAddress,
+          referenceContact,
           refStatus,
           payHistory,
           length,
@@ -28,6 +30,8 @@ router.post("/", auth, async (req, res) => {
         referenceName: referenceName || '',
         referencePhoneNumber: referencePhoneNumber || '',
         referenceEmail: referenceEmail || '',
+        referenceAddress: referenceAddress || "",
+        referenceContact: referenceContact || "",
         refStatus: refStatus ||'',
         payHistory: payHistory || '',
         length: length || '',
@@ -64,6 +68,8 @@ router.patch("/company/:id", auth, async (req, res) => {
       referenceName,
       referencePhoneNumber,
       referenceEmail,
+      referenceAddress,
+      referenceContact,
       refLength
     } = req.body;
 
@@ -84,6 +90,8 @@ if(existingReference.companyId.toString() != user.companyId.toString()){
 existingReference.referenceName = referenceName;
 existingReference.referencePhoneNumber = referencePhoneNumber;
 existingReference.referenceEmail = referenceEmail;
+existingReference.referenceAddress = referenceAddress;
+existingReference.referenceContact = referenceContact;
 existingReference.refLength = refLength;
 
 const saveReference = await existingReference.save();

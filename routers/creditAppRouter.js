@@ -73,6 +73,13 @@ router.get("/:id", auth, async (req, res) => {
     }
   })
 
+// get a credit application by Id
+router.get("/search", auth, async (req, res) => {
+  
+  console.log(req.query.companyId);
+
+})
+
   router.patch("/:id", auth, async (req, res) => {
     try {
       const {

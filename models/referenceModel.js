@@ -7,6 +7,8 @@ const referenceSchema = new mongoose.Schema({
     referenceName: {type: String},
     referencePhoneNumber: {type: String},
     referenceEmail: {type: String},
+    referenceAddress: {type: String},
+    referenceContact: {type: String},
     refStatus: {type: String},
     payHistory: {type: String},
     refLength: {type: Number},
