@@ -82,14 +82,10 @@ router.get("/vendor/:id", auth, async (req, res) => {
   }
 })
 
-<<<<<<< HEAD
 /*get individual master app. This is to create a completed credit app. Instead of individual API calls on
 front end, put together information here and send as complete credit app. 
 **ONLY TO BE USED FOR WHEN COMPLETE CREDIT APP IS REQUIRED**
 */
-=======
-//joins together all details for a complete credit app PDF
->>>>>>> f2b5646ecd1d43e51c600ce152b32195796f471a
 router.get("/full/:id", async (req, res)=> {
 
   const response = {

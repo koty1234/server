@@ -157,11 +157,7 @@ router.get('/company/banner/:id', async (req, res) => {
     }
 });
 
-<<<<<<< HEAD
 //saves signture directly in MongoDB
-=======
-//for signature of Credit App - stores in MongoDB
->>>>>>> f2b5646ecd1d43e51c600ce152b32195796f471a
 router.post("/signature", auth, async (req, res) => {
     try{
         const rawSignature = req.body.signature;
@@ -177,11 +173,7 @@ router.post("/signature", auth, async (req, res) => {
       }
 });
 
-<<<<<<< HEAD
 //gets signature directly from MongoDB
-=======
-//get signature from MongoDB
->>>>>>> f2b5646ecd1d43e51c600ce152b32195796f471a
 router.get("/signature/:id", auth, async (req, res) => {
     try{
         const signature = await CreditApplication.findById(req.params.id);
