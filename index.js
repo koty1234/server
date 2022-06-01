@@ -13,10 +13,10 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://vendor-client-dev.herokuapp.com",
-        "https://company-client-dev.herokuapp.com"] ,
+        "http://localhost:3000", //local vendor side
+        "http://localhost:3001", //local company side
+        "https://vendor-client-dev.herokuapp.com", //stage server vendor side
+        "https://company-client-dev.herokuapp.com"] , //stage server company side
     credentials: true,
 })
 );
@@ -25,7 +25,7 @@ app.use(cookieParser());
 //connet to monogDB
 const connection = mongoose.connect(process.env.MBD_CONNECT_STRING);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000; //port 5000 for local, Heroku port for stage server
 app.listen(PORT, () => console.log("Server started on port " +PORT));
 
 const sessionStore = new MongoStore({

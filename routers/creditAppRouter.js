@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const Company = require("../models/companyModel");
 const CreditApplication = require("../models/creditApplicationModel");
 const auth = require("../middleware/auth");
 const User = require("../models/userModel");
@@ -59,11 +58,13 @@ router.post("/", auth, async (req, res) => {
       }
 })
 
-// get a credit application by Id
+// get a credit application by passing creditAppId
 router.get("/:id", auth, async (req, res) => {
     try{
      let creditApp = await CreditApplication.findById(req.params.id);
+     // checks if credit app exists
      if(!creditApp)  res.json({errorMessage: "No credit application found."});
+     //
      if(!creditApp.customCredAppId) res.json({errorMessage: "Whoops! Something went wrong"})
      res.json(creditApp);
     }
@@ -74,12 +75,12 @@ router.get("/:id", auth, async (req, res) => {
   })
 
 // get a credit application by Id
-router.get("/search", auth, async (req, res) => {
-  
+// don't use this anymore.
+router.get("/search", auth, async (req, res) => {  
   console.log(req.query.companyId);
-
 })
 
+// update a credit application by passing creditAppId
   router.patch("/:id", auth, async (req, res) => {
     try {
       const {
@@ -95,12 +96,10 @@ router.get("/search", auth, async (req, res) => {
   
       const existingCreditApp = await CreditApplication.findById(req.params.id)
       if(!existingCreditApp){
+        //check if credit app exists
         return res.status(400).json({errorMessage: "No credit app found"});
       }
-      if(!req.user) {
-        return res.status(400).json({errorMessage: "Nobody signed in"});
-      }
-      //checks for Authorization
+      //checks if user is authorized to change credit app
       let user = await User.findById(req.user);
       if(existingCreditApp.companyId.toString() != user.comapnyId.toString()){
         return res.status(400).json({errorMessage: "Unauthorized"});

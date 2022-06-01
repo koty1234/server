@@ -4,13 +4,14 @@ const User = require("../models/userModel");
 const Company = require("../models/companyModel");
 const CreditApplication = require("../models/creditApplicationModel");
 const MasterApplication = require("../models/masterApplicationModel");
-const { uploadFileToS3, getObject } = require('../s3');
+const { getObject } = require('../s3');
 const Vendor = require("../models/vendorModel");
 const Reference = require("../models/referenceModel");
 const CreditAppCustom = require("../models/creditAppCustom");
-const { findRenderedDOMComponentWithClass } = require("react-dom/test-utils");
 
-// creates a new master app pulling together the companyId, vendorId & creditApplicationId
+
+// creates a new master app pulling together the companyId, vendorId & creditApplicationId.
+//This happens when company starts a credit app for specific supplier
 router.post("/", auth, async (req, res) => {
     try{
         const {
@@ -22,21 +23,23 @@ router.post("/", auth, async (req, res) => {
           bank,
         } = req.body;
 
+        //checks if creditappId & vendorId exist.
         if(!creditApplicationId || !vendorId){
             return res.status(400).json({errorMessage: "Whoops! Something went wrong"});
-    }
+        }
 
-    const newMasterApp = new MasterApplication({
-        companyId: companyId,
-        vendorId: vendorId,
-        creditApplicationId: creditApplicationId,
-        status: status,
-        references: references || 0,
-        bank: bank || false,
-    });
+        //creates master app
+        const newMasterApp = new MasterApplication({
+            companyId: companyId,
+            vendorId: vendorId,
+            creditApplicationId: creditApplicationId,
+            status: status,
+            references: references || 0,
+            bank: bank || false,
+        });
+        const masterApp = await newMasterApp.save();
+        res.status(200).json(masterApp);
 
-    const masterApp = await newMasterApp.save();
-    res.status(200).json(masterApp);
     }
     catch (err) {
         res.status(500).json({errorMessage: "Whoops! Something went wrong."});
@@ -47,10 +50,13 @@ router.post("/", auth, async (req, res) => {
 // get a master app by Id
 router.get("/details/:id", auth, async (req, res) => {
   try{
-   let masterApp = await MasterApplication.findById(req.params.id);
-   if(!masterApp)  res.status(400).json({errorMessage: "No credit application found."});
-   if(!masterApp.creditApplicationId) res.status(400).json({errorMessage: "Whoops! Something went wrong"})
-   res.status(200).json(masterApp);
+      let masterApp = await MasterApplication.findById(req.params.id);
+      //check is master app exists
+      if(!masterApp)  res.status(400).json({errorMessage: "No credit application found."});
+      //check if creditapp exists
+      if(!masterApp.creditApplicationId) res.status(400).json({errorMessage: "Whoops! Something went wrong"})
+      //if all well return masterApp
+      res.status(200).json(masterApp);
   }
   catch (err) {
     console.log(err);
@@ -64,9 +70,10 @@ router.get("/vendor/:id", auth, async (req, res) => {
   try{
    let masterApps = await MasterApplication.find({ vendorId: req.params.id});
 
-   //checks if any credit apps are found
+   //checks if any master apps are found
    if(!masterApps)  res.status(400).json({errorMessage: "No credit application found."});
-
+  
+   // returns all master apps
    res.status(200).json(masterApps);
   }
   catch (err) {
@@ -75,6 +82,10 @@ router.get("/vendor/:id", auth, async (req, res) => {
   }
 })
 
+/*get individual master app. This is to create a completed credit app. Instead of individual API calls on
+front end, put together information here and send as complete credit app. 
+**ONLY TO BE USED FOR WHEN COMPLETE CREDIT APP IS REQUIRED**
+*/
 router.get("/full/:id", async (req, res)=> {
 
   const response = {
@@ -110,7 +121,6 @@ router.get("/full/:id", async (req, res)=> {
 
   //check to make sure ID was passed
   if(!req.params.id){
-    console.log(err);
     res.status(500).json({errorMessage: "Whoops! Something went wrong."});
   }
 
@@ -128,10 +138,10 @@ router.get("/full/:id", async (req, res)=> {
   try{
     const vendor = await Vendor.findById(customQuestions.vendorId);
     if(vendor.logoKey){
-    response.logo = getObject(vendor.logoKey);
+      response.logo = getObject(vendor.logoKey);
     }
     else response.logo = "https://public-images-for-cred-pay.s3.amazonaws.com/uploadLogoDefaultImage";
-}
+  }
 catch(err) {
     console.log(err);
 }
@@ -141,6 +151,7 @@ let formattedDate = creditApp.updatedAt.toString();
 console.log(formattedDate);
 formattedDate = formattedDate.slice(3,15);
 
+  //put together all data
   response.creatorName = user.firstName + " " + user.lastName;
   response.creatorPosition = user.position || "Unknown Position";
   response.companyName = company.companyName;
@@ -168,7 +179,6 @@ formattedDate = formattedDate.slice(3,15);
   response.signature = creditApp.signature;
   response.dateCompleted = formattedDate;
   response.status = "PENDING";
-
   res.status(200).json(response);
 
 })

@@ -38,7 +38,6 @@ router.post("/", auth, async (req, res) => {
         offerCredit: offerCredit || '',
         notes: notes || '',
     });
-
     const reference = await newReference.save();
     res.status(200).json(reference);
 
@@ -51,9 +50,11 @@ router.post("/", auth, async (req, res) => {
 // get all references for a Contractor by passing contractorId
 router.get("/company/:id", auth, async (req, res) => {
   try{
-   let references = await Reference.find({ companyId: req.params.id});
-   if(!references)  res.json({errorMessage: "No references found."});
-   res.status(200).json(references);
+      let references = await Reference.find({ companyId: req.params.id});
+      //check if any references are there
+      if(!references)  res.json({errorMessage: "No references found."});
+      //return references
+      res.status(200).json(references);
   }
   catch (err) {
     console.log(err);
@@ -61,7 +62,7 @@ router.get("/company/:id", auth, async (req, res) => {
   }
 })
 
-// update a reference by Id with Verification (FOR CONTRACTOR)
+// update a reference by Id with Verification (CONTRACTOR ONLY)
 router.patch("/company/:id", auth, async (req, res) => {
   try{
     const {
@@ -73,34 +74,38 @@ router.patch("/company/:id", auth, async (req, res) => {
       refLength
     } = req.body;
 
-const existingReference = await Reference.findById(req.params.id)
-if(!existingReference){
-  return res.status(400).json({errorMessage: "No reference found"});
-}
-if(!req.user) {
-  return res.status(400).json({errorMessage: "Nobody signed in"});
-}  
-
-//checks for Authorization
-let user = await User.findById(req.user);
-if(existingReference.companyId.toString() != user.companyId.toString()){
-  return res.status(400).json({errorMessage: "Unauthorized"});
-}
-
-existingReference.referenceName = referenceName;
-existingReference.referencePhoneNumber = referencePhoneNumber;
-existingReference.referenceEmail = referenceEmail;
-existingReference.referenceAddress = referenceAddress;
-existingReference.referenceContact = referenceContact;
-existingReference.refLength = refLength;
-
-const saveReference = await existingReference.save();
-res.status(200).json(saveReference);
+  const existingReference = await Reference.findById(req.params.id)
+  //
+  if(!existingReference){
+    return res.status(400).json({errorMessage: "No reference found"});
   }
-catch (err) {
-  res.status(500).json({errorMessage: "Whoops! Something went wrong."});
-  console.log(err);
-}
-})
+  if(!req.user) {
+    return res.status(400).json({errorMessage: "Nobody signed in"});
+  }  
+
+  //checks for Authorization
+  let user = await User.findById(req.user);
+  if(existingReference.companyId.toString() != user.companyId.toString()){
+    return res.status(400).json({errorMessage: "Unauthorized"});
+  }
+
+  existingReference.referenceName = referenceName;
+  existingReference.referencePhoneNumber = referencePhoneNumber;
+  existingReference.referenceEmail = referenceEmail;
+  existingReference.referenceAddress = referenceAddress;
+  existingReference.referenceContact = referenceContact;
+  existingReference.refLength = refLength;
+
+  const saveReference = await existingReference.save();
+  res.status(200).json(saveReference);
+    }
+  catch (err) {
+    res.status(500).json({errorMessage: "Whoops! Something went wrong."});
+    console.log(err);
+  }
+  })
+
+// update a reference by Id with Verification (VENDOR ONLY)
+//fields that only the reference vendor can update TO DO
 
 module.exports = router;

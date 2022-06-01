@@ -74,7 +74,7 @@ catch (err) {
     }
   });
 
-  // attaches companyId to User
+  // attaches companyId to reference for future use and easy access
   // creates 3X blank references for Contractor
   async function finishSetup(companyId, userId){
     const existingUser = await User.findById(userId);
@@ -104,7 +104,7 @@ catch (err) {
 
   }
 
-// get a company based off ID
+// get a company by passing companyId
 router.get("/:id", auth, async (req, res) => {
   const companyId = req.params.id;
   try{
@@ -116,7 +116,7 @@ router.get("/:id", auth, async (req, res) => {
   }
 })
 
-// update a company based off ID
+// update a company by passing companyId
 router.patch("/:id", auth, async (req, res) => {
   try {
     const {
@@ -176,6 +176,5 @@ router.patch("/:id", auth, async (req, res) => {
       res.status(500).send();
   }
 })
-
 
 module.exports = router;
