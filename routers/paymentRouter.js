@@ -3,7 +3,6 @@ const stripe = require("stripe")('sk_test_51KmNReLdXBVrhWF2wecs4kM8JISNzC1qyNDEv
 const auth = require("../middleware/auth");
 
 router.post("/create-payment-intent", async (req,res) => {
-    console.log("here");
     const { price } = req.body;
     const paymentIntent = await stripe.paymentIntents.create({
         amount: price,
