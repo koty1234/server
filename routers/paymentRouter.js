@@ -8,9 +8,9 @@ router.post("/create-payment-intent", async (req,res) => {
         amount: price,
         currency: "cad",
         payment_method_types: [
-            acss_debit,
-            card,
-            wechat_pay
+            'acss_debit',
+            'card',
+            'wechat_pay'
         ]
     });
     res.send({
