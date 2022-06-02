@@ -61,3 +61,4 @@ app.use("/creditapp", require("./routers/creditAppRouter"));
 app.use("/masterapp", require("./routers/masterAppRouter"));
 app.use("/reference", require("./routers/referenceRouter"));
 app.use("/file", require("./routers/fileRouter"));
+app.use("/payment", require("./routers/paymentRouter"));
