@@ -6,12 +6,10 @@ router.post("/create-payment-intent", async (req,res) => {
     const { price } = req.body;
     const paymentIntent = await stripe.paymentIntents.create({
         amount: price,
-        currency: "cad",
-        payment_method_types: [
-            'acss_debit',
-            'card',
-            'wechat_pay'
-        ]
+        currency: "usd",
+        automatic_payment_methods: {
+            enabled: true,
+        },
     });
     res.send({
         clientSecret: paymentIntent.client_secret,
